@@ -1,0 +1,16 @@
+version: '3'
+services:
+  ros-app:
+    build: .
+    # command: ["bash"]
+    # command: ["printenv", "|", "grep", "ROS", "&&", "python", "--version"]
+    # command: python3 --version
+    # command: printenv
+    # command: /bin/bash
+    # stdin_open: true
+    # tty: true
+    ports:
+      - "11311:11311"
+    volumes:
+      - /mnt/hgfs/VM-Shared/ros1/code:/code
+  
