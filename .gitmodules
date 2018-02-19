@@ -1,0 +1,3 @@
+[submodule "nvidia-opengl"]
+	path = nvidia-opengl
+	url = https://gitlab.com/nvidia/opengl.git
