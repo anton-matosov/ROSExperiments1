@@ -13,4 +13,9 @@ services:
       - "11311:11311"
     volumes:
       - /mnt/hgfs/VM-Shared/ros1/code:/code
+  gazebo:
+    build: 
+      context: gazebo-gl
+      args:
+        from: "plumbee/nvidia-virtualgl:latest"
   
