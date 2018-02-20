@@ -12,10 +12,30 @@ services:
     ports:
       - "11311:11311"
     volumes:
-      - /mnt/hgfs/VM-Shared/ros1/code:/code
-  gazebo:
-    build: 
-      context: gazebo-gl
+      # - /mnt/hgfs/VM-Shared/ros1/code:/code
+      - ${PWD}/code:/code
+  nvidia-vgl:
+    build:
+      context: ./nvidia-opengl/1.0-glvnd/runtime
       args:
         from: "plumbee/nvidia-virtualgl:latest"
+  gazebo-nv:
+    depends_on:
+      - nvidia-vgl
+    build: 
+      context: ./gazebo-gl
+      args:
+        from: "${COMPOSE_PROJECT_NAME:-ros1}_nvidia-vgl:latest"
+  gazebo-non-nv:
+    build: 
+      context: ./gazebo-gl
+      args:
+        from: "plumbee/nvidia-virtualgl:latest"
+  test1:
+    build:
+      context: ./test1
+      args:
+        arg: "test_arg_1"
+    environment:
+      ENV1: "env_var1"
   
