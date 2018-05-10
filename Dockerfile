@@ -25,17 +25,17 @@ RUN wget --quiet http://packages.osrfoundation.org/gazebo.key -O - | apt-key add
 	&& sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable xenial main" > /etc/apt/sources.list.d/gazebo-stable.list' \
 	&& apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get -y --quiet --no-install-recommends install \
-		gazebo9 \
-    libgazebo9 \
-    libsdformat6 \
-    gazebo9-common \
-    mesa-utils \
-    xserver-xorg-video-all \
-    libgl1-mesa-glx
+	gazebo9 \
+	libgazebo9 \
+	libsdformat6 \
+	gazebo9-common \
+	mesa-utils \
+	xserver-xorg-video-all \
+	libgl1-mesa-glx
 
-	# && apt-get -y autoremove \
-	# && apt-get clean autoclean \
-	# && rm -rf /var/lib/apt/lists/{apt,dpkg,cache,log} /tmp/* /var/tmp/*
+# && apt-get -y autoremove \
+# && apt-get clean autoclean \
+# && rm -rf /var/lib/apt/lists/{apt,dpkg,cache,log} /tmp/* /var/tmp/*
 
 
 

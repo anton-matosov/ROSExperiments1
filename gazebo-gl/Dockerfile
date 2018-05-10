@@ -6,13 +6,14 @@ FROM ${from}
 RUN apt-get update
 RUN apt-get install -y apt-utils wget
 RUN wget --quiet http://packages.osrfoundation.org/gazebo.key -O - | apt-key add - \
-	&& sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable xenial main" > /etc/apt/sources.list.d/gazebo-stable.list' \
-	&& apt-get update \
-	&& DEBIAN_FRONTEND=noninteractive apt-get -y --quiet --no-install-recommends install \
-		gazebo9 \
-    libgazebo9 \
-    libsdformat6 \
-    gazebo9-common
+  && sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable xenial main" > /etc/apt/sources.list.d/gazebo-stable.list' \
+  && apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get -y --quiet --no-install-recommends install \
+  gazebo9 \
+  libgazebo9 \
+  libsdformat6 \
+  gazebo9-common
+
 
 RUN apt-get install -y firefox dbus
 
