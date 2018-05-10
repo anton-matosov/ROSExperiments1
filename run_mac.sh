@@ -5,37 +5,18 @@
 # set -e
 set -x
 
-open -a XQuartz 
+# open -a XQuartz --background 
+# IP="192.168.246.1"
 
-# run xhost and allow connections from your local machine
-IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
-xhost + $IP
+NET_INTERFACE="vmnet8" # en0
+IP=$(ifconfig $NET_INTERFACE | grep inet | awk '$1=="inet" {print $2}')
 
-# /opt/VirtualGL/bin/vglclient
+xhost + $IP # run xhost and allow connections from the network
+
+# sed -e 's/:.*$//'
+
 # socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\" &
-
-# docker run -it \
-# 	-e DISPLAY=$IP:0 \
-# 	--ipc=host \
-# 	-v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-# 	-v ${PWD}/code:/code \
-# 	--rm=true \
-# 	--name "ros-app-for-mac" \
-# 	--privileged \
-# 	ros1_gazebo-non-nv bash
-  #  vglrun -fps 60 +sync glxgears
-
-	# run from mac on Linux VM or Linux PC
-  
-	# --volume="/var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro" \
-
-	# --volume="/dev/shm:/dev/shm:rw" \
-
-# --shm-size 2g
-# -v /dev/shm:/dev/shm:rw
-
-  # -v "/home/anton/Temp/vmware-tools-distrib/:/vmware-tools-distrib/" \
-  # -v "/lib/modules/4.13.0-32-generic:/lib/modules/4.13.0-32-generic" \
+# /opt/VirtualGL/bin/vglclient & # start VirtualGL client
 
   # Needef for VirtualGL
 	# --volume="/usr/lib/x86_64-linux-gnu/libXv.so.1:/usr/lib/x86_64-linux-gnu/libXv.so.1" \
@@ -43,13 +24,21 @@ xhost + $IP
   # Stops QT from using the MIT-SHM X11 Shared Memory Extension
   # --env="QT_X11_NO_MITSHM=1" \
 
+# https://docs.docker.com/engine/reference/run/#ipc-settings-ipc
+# --ipc=private \
+# or
+# --ipc=host \
+
+# --shm-size=2g - Size of /dev/shm, required for firefox, good for many other apps which utilize IPC
+
 docker run -it --rm \
-	--ipc=host \
+  --shm-size=2g \
 	-e DISPLAY=$IP:0 \
-	--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+	--volume="/tmp/.X11-unix:/tmp/.X11-unix:ro" \
   -v "/mnt/hgfs/VM-Shared/ros1/code:/code" \
   --device=/dev/dri:/dev/dri \
-  ros1_gazebo-non-nv bash
+  ros1_ros-app bash
+  # ros1_gazebo-non-nv bash
 
 # SVGA_VGPU10=0 DISPLAY=:0 gazebo
 
@@ -67,7 +56,7 @@ docker run -it --rm \
 
 
 
-kill %1 # kill socat from background
+kill %1 # kill socat or vglclient from background
 
 
 # No X install found.
