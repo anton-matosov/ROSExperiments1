@@ -1,4 +1,4 @@
-FROM osrf/ros:kinetic-desktop-full-xenial
+FROM osrf/ros:lunar-desktop-full-xenial
 
 # Gazebo downgrade to OpenGL 2 in VMs
 ENV SVGA_VGPU10 0
