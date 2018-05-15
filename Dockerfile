@@ -38,7 +38,7 @@ RUN wget --quiet http://packages.osrfoundation.org/gazebo.key -O - | apt-key add
 # && rm -rf /var/lib/apt/lists/{apt,dpkg,cache,log} /tmp/* /var/tmp/*
 
 
-
-
+ADD ./ros_app_entrypoint.sh /ros_app_entrypoint.sh
+ENTRYPOINT ["bash", "/ros_app_entrypoint.sh"]
 
 CMD ["fish"]
