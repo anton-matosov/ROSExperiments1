@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot name="robot">
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://u1/meshes/Top.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="Bottom">
+    <visual>
+      <geometry>
+        <mesh filename="package://u1/meshes/Bottom.stl" />
+      </geometry>
+    </visual>
+  </link>
+  <joint name="gripper_extension" type="fixed">
+    <parent link="base_link"/>
+    <child link="Bottom"/>
+    <origin rpy="0 0 0" xyz="0.19 0 0.2"/>
+  </joint>
+</robot>

@@ -1,0 +1,13 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"id":	"f3dd0a14-9732-4c53-9fe9-7462a80a3660",
+	"author":	"Anton Matosov",
+	"description":	{
+		"":	"URDF export for ROS and Gazebo"
+	},
+	"version":	"1.0",
+	"runOnStartup":	false,
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
