@@ -34,11 +34,6 @@ def traverseAssembly(occurrences, currentLevel, inputString):
         inputString += ' ' * (currentLevel * 5) + 'Name: ' + occ.name + '\n'
         traverseJoints(occ.component, currentLevel, inputString)
 
-        # adsk.fusion.RevoluteJointType
-        # adsk.fusion.RigidJointType
-        # adsk.fusion.SliderJointType
-        # adsk.fusion.PlanarJointType
-        # adsk.fusion.BallJointType
 
         if occ.childOccurrences:
             inputString = traverseAssembly(
@@ -83,6 +78,7 @@ class URDFExporter:
 
         self.destination = destination
         self.destination_meshes = os.path.join(destination, 'meshes')
+        self.destination_urdf = os.path.join(destination, 'urdf')
         self.modelName = os.path.basename(self.destination)
 
         self.createDirectoryStructure()
@@ -118,30 +114,58 @@ class URDFExporter:
     def build_urdf(self):
         robot = urdf.Robot("robot")
         for occurrence in self.rootComponent.occurrences:
-            mesh_path = os.path.relpath(self.stl_exporter.path_for_occurence(occurrence), self.destination)
+            
+            name = self._element_name(occurrence.name)
             link = urdf.Link(
                 urdf.Visual(
                     urdf.Geometry(
-                        urdf.Mesh(filename=mesh_path)
-                        , name = occurrence.name + "_visual"
+                        urdf.Mesh(filename = self._mesh_path(occurrence))
+                        , name = name + "_visual"
                     )
                 )
-                , name = occurrence.name
+                , name = name
             )
             robot(link)
+        
+        for joint in self.rootComponent.joints:
+            # switch joint.jointMotion.jointType:
+            # adsk.fusion.RevoluteJointType
+            # adsk.fusion.RigidJointType
+            # adsk.fusion.SliderJointType
+            # adsk.fusion.PlanarJointType
+            # adsk.fusion.BallJointType
+            parent = urdf.Parent(self._element_name(joint.occurrenceOne.name))
+            child = urdf.Child(self._element_name(joint.occurrenceTwo.name))
+            limits = urdf.Limit(effort=1000, velocity=0.5,
+                lower=joint.jointMotion.rotationLimits.minimumValue,
+                upper=joint.jointMotion.rotationLimits.maximumValue)
 
-        file = open(self.destination + '/robot.urdf', 'w')
+            vector = joint.jointMotion.rotationAxisVector
+            axis = urdf.Axis(xyz="{} {} {}".format(vector.x, vector.y, vector.z))
+
+            jointModel = urdf.Joint(parent, child, limits, axis, type="revolute", name=joint.name) 
+
+            robot(jointModel)
+
+        file = open(self.destination_urdf + '/robot.urdf', 'w')
         try:
             file.write(str(robot))
         finally:
             file.close()
 
-        # base = urdf.Parent("link1")
-        # joint1 = urdf.Joint(base, urdf.Child("link2"), type="revolute") 
+    def _element_name(self, name):
+        return name.replace(':', "_") \
+            .replace('/', "_") \
+            .replace('_1', "")
+
+    def _mesh_path(self, occurrence):
+        mesh_path = os.path.relpath(self.stl_exporter.path_for_occurence(occurrence), self.destination)
+        return "package://{}/{}".format(self.modelName, mesh_path)
 
     def createDirectoryStructure(self):
         os.makedirs(self.destination, exist_ok=True)
         os.makedirs(self.destination_meshes, exist_ok=True)
+        os.makedirs(self.destination_urdf, exist_ok=True)
 
     def createLogger(self):
         self.logfile = open(self.destination + '/logfile.txt', 'w')
