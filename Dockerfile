@@ -1,5 +1,7 @@
 FROM osrf/ros:lunar-desktop-full-xenial
 
+ENV ROS_DISTRO=lunar
+
 # Gazebo downgrade to OpenGL 2 in VMs
 ENV SVGA_VGPU10 0
 
@@ -31,7 +33,14 @@ RUN wget --quiet http://packages.osrfoundation.org/gazebo.key -O - | apt-key add
 	gazebo9-common \
 	mesa-utils \
 	xserver-xorg-video-all \
-	libgl1-mesa-glx
+	libgl1-mesa-glx \
+	evince
+
+RUN apt-get update \
+	&& DEBIAN_FRONTEND=noninteractive apt-get -y --quiet --no-install-recommends install \
+	ros-$ROS_DISTRO-turtle-tf2 \
+	ros-$ROS_DISTRO-tf2-tools \
+	ros-$ROS_DISTRO-tf
 
 # && apt-get -y autoremove \
 # && apt-get clean autoclean \
