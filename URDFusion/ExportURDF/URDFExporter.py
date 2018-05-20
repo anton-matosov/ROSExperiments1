@@ -8,7 +8,7 @@ import traceback
 import os
 import errno
 import logging
-
+import math
 
 class ExporterUI:
     selectedDirectory = ""
@@ -118,8 +118,11 @@ class URDFExporter:
             name = self._element_name(occurrence.name)
             link = urdf.Link(
                 urdf.Visual(
+                    self._origin_for_occurence(occurrence),
                     urdf.Geometry(
-                        urdf.Mesh(filename = self._mesh_path(occurrence))
+                        urdf.Mesh(filename = self._mesh_path(occurrence)
+                            , scale="0.001 0.001 0.001"
+                        )
                         , name = name + "_visual"
                     )
                 )
@@ -139,11 +142,11 @@ class URDFExporter:
             limits = urdf.Limit(effort=1000, velocity=0.5,
                 lower=joint.jointMotion.rotationLimits.minimumValue,
                 upper=joint.jointMotion.rotationLimits.maximumValue)
-
-            vector = joint.jointMotion.rotationAxisVector
-            axis = urdf.Axis(xyz="{} {} {}".format(vector.x, vector.y, vector.z))
-
-            jointModel = urdf.Joint(parent, child, limits, axis, type="revolute", name=joint.name) 
+# vec = joi.geometryOrOriginTwo.origin
+#         print(vec.asArray())
+            axis = urdf.Axis(xyz = self._vector_str(joint.jointMotion.rotationAxisVector))
+            origin = urdf.Origin(xyz=self._vector_str(joint.geometryOrOriginTwo.origin))
+            jointModel = urdf.Joint(parent, child, limits, axis, origin, type="revolute", name=joint.name) 
 
             robot(jointModel)
 
@@ -152,6 +155,27 @@ class URDFExporter:
             file.write(str(robot))
         finally:
             file.close()
+
+    def _origin_for_occurence(self, occurrence):
+        matrix = occurrence.transform
+        
+        # calculate roll pitch yaw from transformation matrix
+        r11 = matrix.getCell(0, 0)
+        r21 = matrix.getCell(1, 0)
+        r31 = matrix.getCell(2, 0)
+        r32 = matrix.getCell(2, 1)
+        r33 = matrix.getCell(2, 2)
+        
+        pitch = math.atan2(-r31, math.sqrt(math.pow(r11, 2) + math.pow(r21, 2)))
+        cp = math.cos(pitch)
+        yaw = math.atan2(r21 / cp, r11 / cp)
+        roll = math.atan2(r32 / cp, r33 / cp)
+        
+        return urdf.Origin(xyz = self._vector_str(matrix.translation), 
+            rpy = "{} {} {}".format(roll, pitch, yaw))
+
+    def _vector_str(self, vector):
+        return "{} {} {}".format(vector.x, vector.y, vector.z)
 
     def _element_name(self, name):
         return name.replace(':', "_") \
@@ -168,4 +192,5 @@ class URDFExporter:
         os.makedirs(self.destination_urdf, exist_ok=True)
 
     def createLogger(self):
-        self.logfile = open(self.destination + '/logfile.txt', 'w')
+        pass
+        # self.logfile = open(self.destination + '/logfile.txt', 'w')
