@@ -16,7 +16,7 @@ def run(context):
         ui  = app.userInterface
 
         # selectedDirectory = "/Users/antonmatosov/Downloads/exports/u1"
-        selectedDirectory = "/Users/antonmatosov/Develop/VM-Shared/urdf-exports/u1"
+        selectedDirectory = "/Users/antonmatosov/Develop/VM-Shared/ros1/code/src/u1"
         # exporterUI = ExporterUI(ui)
         # exporterUI.askForExportDirectory()
         # selectedDirectory = exporterUI.selectedDirectory
