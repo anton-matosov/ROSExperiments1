@@ -3,7 +3,8 @@
 PROJECT_NAME=ros1
 SERVICE_NAME=ros-app
 
-docker-compose build $SERVICE_NAME
+# don't rebuild every time
+# docker-compose build $SERVICE_NAME
 
 # --shm-size=2g - set shared memory device size to 2GB allowing apps relying on SM to function properly. e.g. Qt based apps, Firefox and Chrome
 # -e DISPLAY - set display env var to current value of $DISPLAY env var (usually :0). This is need to properly forward xserver commands to xclient running on current desktop
@@ -17,3 +18,4 @@ docker run -it --rm \
   --device=/dev/dri:/dev/dri \
   $PROJECT_NAME"_"$SERVICE_NAME
 
+# roslaunch u1 display.launch model:='$(find u1)/urdf/robot.urdf'
