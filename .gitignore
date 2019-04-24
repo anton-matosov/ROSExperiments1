@@ -1,2 +1,4 @@
 code/build
 code/devel
+.DS_Store
+/.vscode/
