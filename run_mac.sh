@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
 # Based on https://learning-continuous-deployment.github.io/docker/images/dockerfile/2015/04/22/docker-gui-osx/
 # and https://fredrikaverpil.github.io/2016/07/31/docker-for-mac-and-gui-applications/
+# comments from https://hub.docker.com/r/playniuniu/docker-gui-firefox/
+# https://medium.com/@pigiuz/hw-accelerated-gui-apps-on-docker-7fd424fe813e
+# https://medium.com/@pigiuz/setting-up-a-hw-accelerated-desktop-on-aws-g2-instances-4b58718a4541
+
 
 # set -e
 set -x
 
-# open -a XQuartz --background 
-# IP="192.168.246.1"
 
 NET_INTERFACE="vmnet8" # en0
 IP=$(ifconfig $NET_INTERFACE | grep inet | awk '$1=="inet" {print $2}')
 
 xhost + $IP # run xhost and allow connections from the network
 
-# sed -e 's/:.*$//'
-
-# socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\" &
+# Forward linux X11 socket to macOS X11 server ( Important! )
+socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\" &
 # /opt/VirtualGL/bin/vglclient & # start VirtualGL client
 
   # Needef for VirtualGL

@@ -1,5 +1,30 @@
 version: '3'
 services:
+  tf-cpu-jupyter:
+    build:
+      dockerfile: Dockerfile.tf-cpu-jupyter
+      context: docker
+      args: 
+        - UBUNTU_VERSION=18.04
+        - TF_PACKAGE=tensorflow
+        - TF_PACKAGE_VERSION=2.0.0a0
+  tf-gpu-jupyter:
+    build:
+      dockerfile: Dockerfile.tf-gpu-jupyter
+      context: docker
+      args: 
+        - UBUNTU_VERSION=18.04
+        - TF_PACKAGE=tensorflow-gpu
+        - TF_PACKAGE_VERSION=2.0.0a0
+  ros-tf:
+    build:
+      dockerfile: Dockerfile.ros
+      context: docker
+      # args:
+      #   - VARIANT=gpu
+    depends_on:
+      - tf-cpu-jupyter
+      - tf-gpu-jupyter
   ros-app:
     build: .
     # command: ["bash"]
@@ -14,6 +39,8 @@ services:
     volumes:
       # - /mnt/hgfs/VM-Shared/ros1/code:/code
       - ${PWD}/code:/code
+    depends_on: 
+      - ros-tf
   nvidia-vgl:
     build:
       context: ./nvidia-opengl/1.0-glvnd/runtime
