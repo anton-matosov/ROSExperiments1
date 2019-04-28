@@ -25,6 +25,8 @@ class STLExporter:
             
         stl_export_options = self.export_manager.createSTLExportOptions(occurence, path)
         stl_export_options.meshRefinement = adsk.fusion.MeshRefinementSettings.MeshRefinementLow
+        stl_export_options.isBinaryFormat = False
+        stl_export_options.isOneFilePerBody = False
 
         return self.export_manager.execute(stl_export_options)
     
