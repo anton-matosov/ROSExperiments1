@@ -17,7 +17,6 @@ RUN apt-get update \
 		apt-get install -y \
     ${PYTHON} \
     ${PYTHON}-pip \
-    ${PYTHON}-yaml \
 		fish \
 		mesa-utils \
 		xserver-xorg-video-all \
@@ -29,19 +28,20 @@ RUN ${PIP} --no-cache-dir install --upgrade pip setuptools
 ADD ./code /code
 WORKDIR /code
 
-RUN ${PIP} install -r requirements.txt
+RUN ${PIP} install -r /code/requirements.txt
 
 # ROS 1 extras and support for python3
 RUN ${PIP} install rospkg catkin_pkg \
 	&& apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get -y --quiet --no-install-recommends install \
 		apt-utils \
-		python-rosinstall \
-		python-rosinstall-generator \
-		python-catkin-tools \
-		python3-dev \
-		python3-numpy \
-		python-wstool \
+		${PYTHON}-rosinstall \
+		${PYTHON}-rosinstall-generator \
+		${PYTHON}-catkin-tools \
+		${PYTHON}-dev \
+		${PYTHON}-numpy \
+		${PYTHON}-wstool \
+		${PYTHON}-cv-bridge \
 		build-essential \
 		ros-$ROS_DISTRO-turtle-tf2 \
 		ros-$ROS_DISTRO-tf2-tools \
@@ -50,30 +50,49 @@ RUN ${PIP} install rospkg catkin_pkg \
 
 RUN apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt install -y \
-		python3-dev \
-		zlib1g-dev \
-		libjpeg-dev \
 		cmake \
-		swig \
-		python-pyglet \
-		python3-opengl \
-		libboost-all-dev \
-		libsdl2-dev \
-		libosmesa6-dev \
-		patchelf \
 		ffmpeg \
+		libboost-all-dev \
+		libjpeg-dev \
+		libosmesa6-dev \
+		libsdl2-dev \
+		patchelf \
+		${PYTHON}-pyglet \
+		${PYTHON}-dev \
+		${PYTHON}-opengl \
+		swig \
 		xvfb \
-		&& ${PIP} install -y 'gym[all]' 
+		zlib1g-dev
 
-# Create python3 fiendly catkin workspace
-ENV CATKIN_PY3_WS=~/catkin_build_ws
-RUN mkdir ${CATKIN_PY3_WS} \
-	&& cd ${CATKIN_PY3_WS} \
-	&& catkin config -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-			-DPYTHON_INCLUDE_DIR=/usr/include/python3.6m \
-			-DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-	&& catkin config --install
-WORKDIR ${CATKIN_PY3_WS}
+# Rendering on server needs display `xvfb-run -s "-screen 0 1400x900x24" bash`
+RUN ${PIP} install \
+	"gym[atari]" \
+	"gym[board_game]" \
+	"gym[box2d]" \
+	"gym[classic_control]"
+	# "gym[mujoco]"
+
+# OpenAI baselines
+RUN apt-get update \
+	&& DEBIAN_FRONTEND=noninteractive apt install -y \
+		cmake \
+		libopenmpi-dev \
+		${PYTHON}-dev \
+		zlib1g-dev
+
+RUN git clone https://github.com/openai/baselines.git \
+	&& ${PIP} install -e baselines \
+	&& ${PIP} install pytest
+
+# # Create python3 fiendly catkin workspace
+# ENV CATKIN_PY3_WS=/catkin_build_ws
+# RUN mkdir ${CATKIN_PY3_WS} \
+# 	&& cd ${CATKIN_PY3_WS} \
+# 	&& catkin config -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+# 			-DPYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+# 			-DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+# 	&& catkin config --install
+# WORKDIR ${CATKIN_PY3_WS}
 
 # rosunit for python3 https://github.com/ros/ros/issues/158
 # might be not needed in latest version
@@ -83,6 +102,7 @@ WORKDIR ${CATKIN_PY3_WS}
 # 	&& catkin_make_isolated --install --pkg rosunit -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/melodic \
 # 	&& rm -rf "${CATKIN_PY3_WS}/src/ros"
 
+ADD ./ros_python3_issues /ros_python3_issues
 ADD ./docker/ros_entrypoint.sh /ros_entrypoint.sh
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
