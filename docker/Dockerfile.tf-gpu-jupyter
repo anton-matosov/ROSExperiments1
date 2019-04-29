@@ -21,15 +21,18 @@
 # throughout. Please refer to the TensorFlow dockerfiles documentation
 # for more information.
 
-ARG UBUNTU_VERSION=16.04
+ARG UBUNTU_VERSION_MAJOR=16
+ARG UBUNTU_VERSION_MINOR=04
 
 ARG ARCH=
 ARG CUDA=10.0
-FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
+FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION_MAJOR}.${UBUNTU_VERSION_MINOR} as base
 # ARCH and CUDA are specified again because the FROM directive resets ARGs
 # (but their default value is retained if set previously)
 ARG ARCH
 ARG CUDA
+ARG UBUNTU_VERSION_MAJOR
+ARG UBUNTU_VERSION_MINOR
 ARG CUDNN=7.4.1.5-1
 
 # Needed for string substitution 
@@ -53,7 +56,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         unzip
 
 RUN [ ${ARCH} = ppc64le ] || (apt-get update && \
-        apt-get install nvinfer-runtime-trt-repo-ubuntu1604-5.0.2-ga-cuda${CUDA} \
+        apt-get install nvinfer-runtime-trt-repo-ubuntu${UBUNTU_VERSION_MAJOR}${UBUNTU_VERSION_MINOR}-5.0.2-ga-cuda${CUDA} \
         && apt-get update \
         && apt-get install -y --no-install-recommends libnvinfer5=5.0.2-1+cuda${CUDA} \
         && apt-get clean \

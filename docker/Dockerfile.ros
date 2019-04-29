@@ -40,8 +40,7 @@ RUN rosdep init \
 # install ros packages
 ENV ROS_DISTRO melodic
 RUN apt-get update && apt-get install -y \
-    ros-melodic-ros-core=1.4.1-0* \
-    # ros-${ROS_DISTRO}-desktop-full \
+    ros-${ROS_DISTRO}-desktop-full \
     && rm -rf /var/lib/apt/lists/*
 
 # setup entrypoint

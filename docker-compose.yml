@@ -8,14 +8,17 @@ services:
         - UBUNTU_VERSION=18.04
         - TF_PACKAGE=tensorflow
         - TF_PACKAGE_VERSION=2.0.0a0
+        - USE_PYTHON_3_NOT_2=1
   tf-gpu-jupyter:
     build:
       dockerfile: Dockerfile.tf-gpu-jupyter
       context: docker
       args: 
-        - UBUNTU_VERSION=18.04
+        - UBUNTU_VERSION_MAJOR=18
+        - UBUNTU_VERSION_MINOR=04
         - TF_PACKAGE=tensorflow-gpu
         - TF_PACKAGE_VERSION=2.0.0a0
+        - USE_PYTHON_3_NOT_2=1
   ros-tf:
     build:
       dockerfile: Dockerfile.ros
@@ -36,6 +39,7 @@ services:
     # tty: true
     ports:
       - "11311:11311"
+      - "8888:8888"
     volumes:
       # - /mnt/hgfs/VM-Shared/ros1/code:/code
       - ${PWD}/code:/code
