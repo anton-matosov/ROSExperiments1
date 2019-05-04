@@ -68,6 +68,7 @@ RUN apt-get update \
 RUN ${PIP} install --upgrade --ignore-installed "gym[atari,box2d,classic_control]" 
 	# "gym[mujoco,robotics]"
 
+###################################
 # OpenAI baselines
 RUN apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt install -y \
@@ -83,7 +84,9 @@ RUN git clone https://github.com/openai/baselines.git \
 # OpenAI Spinning Up https://spinningup.openai.com
 RUN git clone https://github.com/openai/spinningup.git \
 	&& ${PIP} install -e spinningup
+###################################
 
+###################################
 # Create python3 fiendly catkin workspace
 ENV CATKIN_PY3_WS=/catkin_build_ws
 RUN mkdir ${CATKIN_PY3_WS} \
@@ -102,8 +105,34 @@ RUN mkdir ${CATKIN_PY3_WS}/src \
 	&& catkin build cv_bridge 
 
 ADD ./ros_python3_issues /ros_python3_issues
+###################################
+
+
+###################################
+# Gazebo Web
+RUN apt-get update \
+	&& DEBIAN_FRONTEND=noninteractive apt install -y \
+		libjansson-dev \
+		nodejs \
+		npm \
+		nodejs-legacy \
+		libboost-dev \
+		imagemagick \
+		libtinyxml-dev \
+		mercurial \
+		cmake \
+		build-essential
+
+# Note: the -m flag tells the deploy script to grab all the models from the model database and any other models in your GAZEBO_MODEL_PATH.
+# For all subsequent builds, the -m flag will not be needed.
+# http://gazebosim.org/tutorials?tut=gzweb_install&cat=gzweb
+RUN hg clone https://bitbucket.org/osrf/gzweb \
+	&& cd ~/gzweb \
+	&& . /opt/ros/${ROS_DISTRO}/setup.sh \
+	&& npm run deploy --- -m
+	# && hg up gzweb_1.4.0
+
+
 ADD ./docker/ros_app.sh /ros_app.sh
-
 ENTRYPOINT ["/ros_app.sh"]
-
 CMD ["bash", "-c", "source /etc/bash.bashrc && jupyter notebook --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
